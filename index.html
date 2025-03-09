@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Order Management</h1>
+    <table id="ordersTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>City</th>
+                <th>Address</th>
+                <th>Model</th>
+                <th>Color</th>
+                <th>Size</th>
+                <th>Status</th>
+                <th>Notes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Orders will be dynamically added here -->
+        </tbody>
+    </table>
+    <button onclick="addOrder()">Add Order</button>
+    <script>
+        const statuses = ["Pending", "Shipped", "Delivered", "Cancelled"];
+
+        function addOrder() {
+            const table = document.getElementById('ordersTable').getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+
+            for (let i = 0; i < 9; i++) {
+                const newCell = newRow.insertCell(i);
+                if (i === 7) {
+                    const select = document.createElement('select');
+                    const emptyOption = document.createElement('option');
+                    emptyOption.value = "";
+                    emptyOption.text = "";
+                    select.appendChild(emptyOption);
+                    statuses.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status;
+                        option.text = status;
+                        select.appendChild(option);
+                    });
+                    newCell.appendChild(select);
+                } else {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    newCell.appendChild(input);
+                }
+            }
+
+            const actionsCell = newRow.insertCell(9);
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Delete';
+            deleteButton.onclick = function() {
+                table.deleteRow(newRow.rowIndex - 1);
+                saveOrders();
+            };
+            actionsCell.appendChild(deleteButton);
+
+            const editButton = document.createElement('button');
+            editButton.innerText = 'Edit';
+            editButton.onclick = function() {
+                updateOrder(newRow);
+            };
+            actionsCell.appendChild(editButton);
+
+            saveOrders();
+        }
+
+        function updateOrder(row) {
+            const cells = row.getElementsByTagName('td');
+            for (let i = 0; i < cells.length - 1; i++) {
+                const cell = cells[i];
+                if (i === 7) {
+                    const select = cell.getElementsByTagName('select')[0];
+                    select.disabled = !select.disabled;
+                } else {
+                    const input = cell.getElementsByTagName('input')[0];
+                    input.disabled = !input.disabled;
+                }
+            }
+            saveOrders();
+        }
+
+        function saveOrders() {
+            const table = document.getElementById('ordersTable').getElementsByTagName('tbody')[0];
+            const rows = table.getElementsByTagName('tr');
+            const orders = [];
+
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const order = {};
+                order.name = cells[0].getElementsByTagName('input')[0].value;
+                order.phone = cells[1].getElementsByTagName('input')[0].value;
+                order.city = cells[2].getElementsByTagName('input')[0].value;
+                order.address = cells[3].getElementsByTagName('input')[0].value;
+                order.model = cells[4].getElementsByTagName('input')[0].value;
+                order.color = cells[5].getElementsByTagName('input')[0].value;
+                order.size = cells[6].getElementsByTagName('input')[0].value;
+                order.status = cells[7].getElementsByTagName('select')[0].value;
+                order.notes = cells[8].getElementsByTagName('input')[0].value;
+                orders.push(order);
+            }
+
+            localStorage.setItem('orders', JSON.stringify(orders));
+        }
+
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [
+                { name: "Ion Popescu", phone: "0712345678", city: "Bucuresti", address: "Str. Libertatii, Nr. 1", model: "Model A", color: "Rosu", size: "M", status: "", notes: "Urgent" },
+                { name: "Maria Ionescu", phone: "0723456789", city: "Cluj", address: "Str. Unirii, Nr. 2", model: "Model B", color: "Albastru", size: "L", status: "", notes: "Livrare rapida" }
+            ];
+            orders.forEach(order => {
+                const table = document.getElementById('ordersTable').getElementsByTagName('tbody')[0];
+                const newRow = table.insertRow();
+
+                const nameCell = newRow.insertCell(0);
+                const nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.value = order.name;
+                nameCell.appendChild(nameInput);
+
+                const phoneCell = newRow.insertCell(1);
+                const phoneInput = document.createElement('input');
+                phoneInput.type = 'text';
+                phoneInput.value = order.phone;
+                phoneCell.appendChild(phoneInput);
+
+                const cityCell = newRow.insertCell(2);
+                const cityInput = document.createElement('input');
+                cityInput.type = 'text';
+                cityInput.value = order.city;
+                cityCell.appendChild(cityInput);
+
+                const addressCell = newRow.insertCell(3);
+                const addressInput = document.createElement('input');
+                addressInput.type = 'text';
+                addressInput.value = order.address;
+                addressCell.appendChild(addressInput);
+
+                const modelCell = newRow.insertCell(4);
+                const modelInput = document.createElement('input');
+                modelInput.type = 'text';
+                modelInput.value = order.model;
+                modelCell.appendChild(modelInput);
+
+                const colorCell = newRow.insertCell(5);
+                const colorInput = document.createElement('input');
+                colorInput.type = 'text';
+                colorInput.value = order.color;
+                colorCell.appendChild(colorInput);
+
+                const sizeCell = newRow.insertCell(6);
+                const sizeInput = document.createElement('input');
+                sizeInput.type = 'text';
+                sizeInput.value = order.size;
+                sizeCell.appendChild(sizeInput);
+
+                const statusCell = newRow.insertCell(7);
+                const statusSelect = document.createElement('select');
+                const emptyOption = document.createElement('option');
+                emptyOption.value = "";
+                emptyOption.text = "";
+                statusSelect.appendChild(emptyOption);
+                statuses.forEach(status => {
+                    const option = document.createElement('option');
+                    option.value = status;
+                    option.text = status;
+                    if (status === order.status) {
+                        option.selected = true;
+                    }
+                    statusSelect.appendChild(option);
+                });
+                statusCell.appendChild(statusSelect);
+
+                const notesCell = newRow.insertCell(8);
+                const notesInput = document.createElement('input');
+                notesInput.type = 'text';
+                notesInput.value = order.notes;
+                notesCell.appendChild(notesInput);
+
+                const actionsCell = newRow.insertCell(9);
+                const deleteButton = document.createElement('button');
+                deleteButton.innerText = 'Delete';
+                deleteButton.onclick = function() {
+                    table.deleteRow(newRow.rowIndex - 1);
+                    saveOrders();
+                };
+                actionsCell.appendChild(deleteButton);
+
+                const editButton = document.createElement('button');
+                editButton.innerText = 'Edit';
+                editButton.onclick = function() {
+                    updateOrder(newRow);
+                };
+                actionsCell.appendChild(editButton);
+            });
+        }
+
+        window.onload = loadOrders;
+    </script>
+</body>
+</html>
